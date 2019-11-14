@@ -1,0 +1,46 @@
+From 1c35134d32b3e5f94b488f96208dba3c1520ca11 Mon Sep 17 00:00:00 2001
+From: Hong Yu <hongyu.wang@mail.utoronto.ca>
+Date: Wed, 13 Nov 2019 23:49:43 -0500
+Subject: [PATCH] Bug 1591235
+
+Fix all calls of nsContentUtils::ShouldResistFingerprinting(*) to
+default to nsContentUtils::ShouldResistFingerprinting() instead of false
+in the case of a nullptr being passed into the function
+---
+ dom/base/nsContentUtils.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/dom/base/nsContentUtils.cpp b/dom/base/nsContentUtils.cpp
+index c3afb08a3734..1f76d510016c 100644
+--- a/dom/base/nsContentUtils.cpp
++++ b/dom/base/nsContentUtils.cpp
+@@ -1989,7 +1989,7 @@ bool nsContentUtils::ShouldResistFingerprinting() {
+ 
+ bool nsContentUtils::ShouldResistFingerprinting(nsIDocShell* aDocShell) {
+   if (!aDocShell) {
+-    return false;
++    return ShouldResistFingerprinting();
+   }
+   return ShouldResistFingerprinting(aDocShell->GetDocument());
+ }
+@@ -1997,7 +1997,7 @@ bool nsContentUtils::ShouldResistFingerprinting(nsIDocShell* aDocShell) {
+ /* static */
+ bool nsContentUtils::ShouldResistFingerprinting(const Document* aDoc) {
+   if (!aDoc) {
+-    return false;
++    return ShouldResistFingerprinting();
+   }
+   bool isChrome = nsContentUtils::IsChromeDoc(aDoc);
+   return !isChrome && ShouldResistFingerprinting();
+@@ -2006,7 +2006,7 @@ bool nsContentUtils::ShouldResistFingerprinting(const Document* aDoc) {
+ /* static */
+ bool nsContentUtils::ShouldResistFingerprinting(nsIPrincipal* aPrincipal) {
+   if (!aPrincipal) {
+-    return false;
++    return ShouldResistFingerprinting();
+   }
+   bool isChrome = nsContentUtils::IsSystemPrincipal(aPrincipal);
+   return !isChrome && ShouldResistFingerprinting();
+-- 
+2.17.1
+
